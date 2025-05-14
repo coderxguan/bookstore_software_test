@@ -3,7 +3,7 @@
 这是一个前后端分离的在线图书馆系统，用于学习和测试Java Spring Boot及Vue 3技术栈。
 
 ## 项目结构
-
+test
 ```
 bookstore/
 ├── backend/             # 后端Spring Boot项目
