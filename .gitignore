@@ -11,6 +11,8 @@
 hs_err_pid*
 replay_pid*
 
+/old_test_report
+
 # Maven
 target/
 pom.xml.tag
