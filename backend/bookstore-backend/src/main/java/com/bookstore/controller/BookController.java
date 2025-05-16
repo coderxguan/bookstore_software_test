@@ -1,6 +1,5 @@
 package com.bookstore.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.bookstore.entity.Book;
 import com.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,31 +31,6 @@ public class BookController {
         
         Map<String, Object> data = new HashMap<>();
         data.put("list", books);
-        result.put("data", data);
-        
-        return result;
-    }
-    
-    /**
-     * 高级搜索图书
-     */
-    @GetMapping("/search")
-    public Map<String, Object> search(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String author,
-            @RequestParam(required = false) String category) {
-        
-        IPage<Book> pageResult = bookService.advancedSearch(title, author, category, page, size);
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("message", "搜索成功");
-        
-        Map<String, Object> data = new HashMap<>();
-        data.put("list", pageResult.getRecords());
-        data.put("total", pageResult.getTotal());
         result.put("data", data);
         
         return result;

@@ -1,6 +1,5 @@
 package com.bookstore.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bookstore.entity.Book;
 
@@ -19,41 +18,11 @@ public interface BookService extends IService<Book> {
     List<Book> listAllBooks(String query);
     
     /**
-     * 分页查询图书
-     * @param page 页码
-     * @param size 每页数量
-     * @param query 查询条件
-     * @return 分页结果
-     */
-    IPage<Book> listBooks(int page, int size, String query);
-    
-    /**
-     * 高级搜索图书
-     * @param title 标题关键词
-     * @param author 作者关键词
-     * @param category 类别关键词
-     * @param page 页码
-     * @param size 每页数量
-     * @return 图书列表
-     */
-    IPage<Book> advancedSearch(String title, String author, String category, int page, int size);
-    
-    /**
      * 获取图书详情
      * @param id 图书ID
      * @return 图书详情
      */
     Book getBookDetail(Long id);
-    
-    /**
-     * 按收藏量排序搜索图书
-     * @param page 页码
-     * @param size 每页数量
-     * @param query 搜索关键词
-     * @param sortType 排序类型: 'asc'升序, 'desc'降序
-     * @return 图书列表
-     */
-    IPage<Book> searchAndSortByFavoriteCount(int page, int size, String query, String sortType);
     
     /**
      * 获取所有图书并按收藏量排序

@@ -12,6 +12,8 @@ hs_err_pid*
 replay_pid*
 
 /old_test_report
+allure-results
+.allure
 
 # Maven
 target/

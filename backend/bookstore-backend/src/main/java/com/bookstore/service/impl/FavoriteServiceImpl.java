@@ -1,8 +1,6 @@
 package com.bookstore.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bookstore.entity.Book;
 import com.bookstore.entity.Favorite;
@@ -14,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,49 +68,6 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
         
         // 统计结果
         return count(wrapper) > 0;
-    }
-    
-    @Override
-    public IPage<Book> getUserFavorites(Long userId, int page, int size) {
-        // 分页查询用户收藏记录
-        LambdaQueryWrapper<Favorite> favoriteWrapper = new LambdaQueryWrapper<>();
-        favoriteWrapper.eq(Favorite::getUserId, userId)
-                      .orderByDesc(Favorite::getCreateTime);
-        
-        Page<Favorite> favoritePage = new Page<>(page, size);
-        Page<Favorite> favoriteResult = page(favoritePage, favoriteWrapper);
-        
-        // 如果没有收藏记录，返回空结果
-        if (favoriteResult.getRecords().isEmpty()) {
-            return new Page<Book>(page, size, 0);
-        }
-        
-        // 提取所有收藏的图书ID
-        List<Long> bookIds = favoriteResult.getRecords().stream()
-                                          .map(Favorite::getBookId)
-                                          .collect(Collectors.toList());
-        
-        // 查询所有收藏的图书
-        LambdaQueryWrapper<Book> bookWrapper = new LambdaQueryWrapper<>();
-        bookWrapper.in(Book::getId, bookIds);
-        List<Book> books = bookMapper.selectList(bookWrapper);
-        
-        // 维护原始顺序
-        List<Book> orderedBooks = new ArrayList<>(books.size());
-        for (Long bookId : bookIds) {
-            for (Book book : books) {
-                if (book.getId().equals(bookId)) {
-                    orderedBooks.add(book);
-                    break;
-                }
-            }
-        }
-        
-        // 创建图书分页结果
-        Page<Book> result = new Page<>(page, size, favoriteResult.getTotal());
-        result.setRecords(orderedBooks);
-        
-        return result;
     }
     
     @Override

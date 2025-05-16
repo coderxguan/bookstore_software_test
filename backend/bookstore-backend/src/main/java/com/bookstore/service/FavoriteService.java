@@ -1,6 +1,5 @@
 package com.bookstore.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bookstore.entity.Book;
 import com.bookstore.entity.Favorite;
@@ -32,15 +31,6 @@ public interface FavoriteService extends IService<Favorite> {
      * @return 是否已收藏
      */
     boolean isFavorite(Long userId, Long bookId);
-    
-    /**
-     * 获取用户收藏的图书列表(分页)
-     * @param userId 用户ID
-     * @param page 页码
-     * @param size 每页数量
-     * @return 图书列表
-     */
-    IPage<Book> getUserFavorites(Long userId, int page, int size);
     
     /**
      * 获取用户收藏的所有图书
