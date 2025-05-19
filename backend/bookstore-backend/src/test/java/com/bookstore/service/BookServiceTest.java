@@ -79,7 +79,7 @@ public class BookServiceTest {
      * 测试用例: TC-B01 添加有效图书
      * 等价类覆盖: E1(有效标题), E3(有效价格)
      */
-    @DisplayName("添加有效图书测试")
+    @DisplayName("TC-B01: 添加有效图书测试")
     @Test
     public void testAddValidBook() {
         // 准备测试数据
@@ -103,7 +103,7 @@ public class BookServiceTest {
      * 等价类覆盖: I1(无效标题-空), E3(有效价格)
      * 预期: 添加失败，标题不能为空
      */
-    @DisplayName("添加空标题图书测试")
+    @DisplayName("TC-B02: 添加空标题图书测试")
     @Test
     public void testAddBookWithEmptyTitle() {
         // 准备测试数据
@@ -127,7 +127,7 @@ public class BookServiceTest {
      * 等价类覆盖: E1(有效标题), I5(无效价格-负数)
      * 预期: 添加失败，价格必须大于0
      */
-    @DisplayName("添加负价格图书测试")
+    @DisplayName("TC-B03: 添加负价格图书测试")
     @Test
     public void testAddBookWithInvalidPrice() {
         // 准备测试数据
@@ -150,7 +150,7 @@ public class BookServiceTest {
      * 测试用例: TC-B04 价格边界(最小)
      * 测试最小有效价格0.01
      */
-    @DisplayName("价格最小边界值测试")
+    @DisplayName("TC-B04: 价格最小边界值测试")
     @Test
     public void testMinimumPriceBoundary() {
         // 准备测试数据
@@ -171,7 +171,7 @@ public class BookServiceTest {
      * 测试用例: TC-B05 价格边界(最大)
      * 测试最大有效价格9999.99
      */
-    @DisplayName("价格最大边界值测试")
+    @DisplayName("TC-B05: 价格最大边界值测试")
     @Test
     public void testMaximumPriceBoundary() {
         // 准备测试数据
@@ -192,7 +192,7 @@ public class BookServiceTest {
      * 测试用例: TC-B06 价格边界(超出)
      * 测试超出有效价格范围10000.00
      */
-    @DisplayName("价格超出边界值测试")
+    @DisplayName("TC-B06: 价格超出边界值测试")
     @Test
     public void testExceedMaximumPriceBoundary() {
         // 准备测试数据
@@ -215,7 +215,7 @@ public class BookServiceTest {
      * 测试用例: TC-WB01 添加图书语句覆盖
      * 白盒测试: 语句覆盖 - BookServiceImpl.addBook()
      */
-    @DisplayName("添加图书语句覆盖测试")
+    @DisplayName("TC-WB01: 添加图书语句覆盖测试")
     @Test
     public void testAddBookStatementCoverage() {
         // 准备完整有效的书本数据，确保所有语句都会执行
@@ -238,7 +238,7 @@ public class BookServiceTest {
      * 测试用例: TC-WB02 更新图书语句覆盖
      * 白盒测试: 语句覆盖 - BookServiceImpl.updateBook()
      */
-    @DisplayName("更新图书语句覆盖测试")
+    @DisplayName("TC-WB02: 更新图书语句覆盖测试")
     @Test
     public void testUpdateBookStatementCoverage() {
         // 添加一本书
@@ -270,7 +270,7 @@ public class BookServiceTest {
      * 测试用例: TC-WB03 删除图书语句覆盖
      * 白盒测试: 语句覆盖 - BookServiceImpl.deleteBook()
      */
-    @DisplayName("删除图书语句覆盖测试")
+    @DisplayName("TC-WB03: 删除图书语句覆盖测试")
     @Test
     public void testDeleteBookStatementCoverage() {
         // 添加一本书
@@ -297,7 +297,7 @@ public class BookServiceTest {
      * 测试用例: TC-CB01 图书价格条件判断(正值)
      * 白盒测试: 条件覆盖 - if (book.getPrice() <= 0)为false的分支
      */
-    @DisplayName("图书价格正值条件测试")
+    @DisplayName("TC-CB01: 图书价格正值条件测试")
     @Test
     public void testBookPriceConditionPositive() {
         // 准备测试数据
@@ -316,7 +316,7 @@ public class BookServiceTest {
      * 测试用例: TC-CB02 图书价格条件判断(零值)
      * 白盒测试: 条件覆盖 - if (book.getPrice() <= 0)为true的分支
      */
-    @DisplayName("图书价格零值条件测试")
+    @DisplayName("TC-CB02: 图书价格零值条件测试")
     @Test
     public void testBookPriceConditionZero() {
         // 准备测试数据
@@ -338,7 +338,7 @@ public class BookServiceTest {
      * 测试用例: TC-CB03 图书存在性判断 (存在情况)
      * 白盒测试: 条件覆盖 - if (bookExists)为true的分支
      */
-    @DisplayName("图书存在条件测试")
+    @DisplayName("TC-CB03: 图书存在条件测试")
     @Test
     public void testBookExistsConditionTrue() {
         // 准备测试数据 - 使用setUp中已保存的图书
@@ -357,7 +357,7 @@ public class BookServiceTest {
      * 测试用例: TC-CB03 图书存在性判断 (不存在情况)
      * 白盒测试: 条件覆盖 - if (bookExists)为false的分支
      */
-    @DisplayName("图书不存在条件测试")
+    @DisplayName("TC-CB03: 图书不存在条件测试")
     @Test
     public void testBookExistsConditionFalse() {
         // 准备测试数据
@@ -374,7 +374,7 @@ public class BookServiceTest {
      * 测试用例: TC-PB01 添加图书成功路径
      * 白盒测试: 路径测试 - 完整成功路径
      */
-    @DisplayName("添加图书成功路径测试")
+    @DisplayName("TC-PB01: 添加图书成功路径测试")
     @Test
     public void testAddBookSuccessPath() {
         // 准备测试数据
@@ -397,7 +397,7 @@ public class BookServiceTest {
      * 测试用例: TC-PB02 添加图书失败路径
      * 白盒测试: 路径测试 - 参数校验失败路径
      */
-    @DisplayName("添加图书失败路径测试")
+    @DisplayName("TC-PB02: 添加图书失败路径测试")
     @Test
     public void testAddBookFailurePath() {
         // 准备测试数据 - 无效价格

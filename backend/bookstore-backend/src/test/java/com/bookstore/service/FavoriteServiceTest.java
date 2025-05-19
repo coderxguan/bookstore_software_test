@@ -73,7 +73,7 @@ public class FavoriteServiceTest {
      * 测试用例: TC-F01 未收藏→已收藏
      * 状态转换测试: 从未收藏状态转换到已收藏状态
      */
-    @DisplayName("未收藏到已收藏状态转换测试")
+    @DisplayName("TC-F01: 未收藏到已收藏状态转换测试")
     @Test
     public void testAddFavoriteWhenNotFavorited() {
         // 步骤1: 确认未收藏状态
@@ -95,7 +95,7 @@ public class FavoriteServiceTest {
      * 测试用例: TC-F02 已收藏→未收藏
      * 状态转换测试: 从已收藏状态转换到未收藏状态
      */
-    @DisplayName("已收藏到未收藏状态转换测试")
+    @DisplayName("TC-F02: 已收藏到未收藏状态转换测试")
     @Test
     public void testRemoveFavoriteWhenFavorited() {
         // 步骤1: 准备已收藏状态
@@ -118,7 +118,7 @@ public class FavoriteServiceTest {
      * 测试用例: TC-F03 已收藏→已收藏(无效转换)
      * 状态转换测试: 在已收藏状态下再次添加收藏(无效转换)
      */
-    @DisplayName("已收藏到已收藏无效转换测试")
+    @DisplayName("TC-F03: 已收藏到已收藏无效转换测试")
     @Test
     public void testAddFavoriteWhenAlreadyFavorited() {
         // 步骤1: 准备已收藏状态
@@ -140,7 +140,7 @@ public class FavoriteServiceTest {
      * 测试用例: TC-F04 添加收藏后计数增加
      * 收藏计数功能测试: 验证添加收藏后图书收藏计数增加
      */
-    @DisplayName("添加收藏后计数增加测试")
+    @DisplayName("TC-F04: 添加收藏后计数增加测试")
     @Test
     public void testFavoriteCountIncrementAfterAdd() {
         // 记录原始收藏计数
@@ -161,7 +161,7 @@ public class FavoriteServiceTest {
      * 测试用例: TC-F05 取消收藏后计数减少
      * 收藏计数功能测试: 验证取消收藏后图书收藏计数减少
      */
-    @DisplayName("取消收藏后计数减少测试")
+    @DisplayName("TC-F05: 取消收藏后计数减少测试")
     @Test
     public void testFavoriteCountDecrementAfterRemove() {
         // 准备已收藏状态
@@ -186,7 +186,7 @@ public class FavoriteServiceTest {
      * 测试用例: TC-F06 多用户收藏同一图书
      * 收藏计数功能测试: 验证多个用户收藏同一图书时收藏计数累加
      */
-    @DisplayName("多用户收藏同一图书测试")
+    @DisplayName("TC-F06: 多用户收藏同一图书测试")
     @Test
     public void testMultipleUsersFavorite() {
         // 创建第二个测试用户
@@ -218,7 +218,7 @@ public class FavoriteServiceTest {
      * 测试用例: TC-WF01 添加收藏语句覆盖
      * 白盒测试: 语句覆盖 - FavoriteServiceImpl.addFavorite()
      */
-    @DisplayName("添加收藏语句覆盖测试")
+    @DisplayName("TC-WF01: 添加收藏语句覆盖测试")
     @Test
     public void testAddFavoriteStatementCoverage() {
         // 执行添加收藏操作
@@ -239,7 +239,7 @@ public class FavoriteServiceTest {
      * 测试用例: TC-WF02 取消收藏语句覆盖
      * 白盒测试: 语句覆盖 - FavoriteServiceImpl.removeFavorite()
      */
-    @DisplayName("取消收藏语句覆盖测试")
+    @DisplayName("TC-WF02: 取消收藏语句覆盖测试")
     @Test
     public void testRemoveFavoriteStatementCoverage() {
         // 准备已收藏状态
@@ -263,32 +263,32 @@ public class FavoriteServiceTest {
      * 测试用例: TC-WF04 获取收藏列表语句覆盖
      * 白盒测试: 语句覆盖 - FavoriteServiceImpl.getAllUserFavorites()
      */
-    @DisplayName("获取收藏列表语句覆盖测试")
+    @DisplayName("TC-WF04: 获取收藏列表语句覆盖测试")
     @Test
     public void testGetAllUserFavoritesStatementCoverage() {
-        // 准备已收藏状态
+        // 准备收藏数据
         favoriteService.addFavorite(userId, bookId);
         
         // 执行获取收藏列表操作
-        List<Book> result = favoriteService.getAllUserFavorites(userId);
+        List<Book> favorites = favoriteService.getAllUserFavorites(userId);
         
         // 验证结果
-        assertNotNull(result, "收藏列表不应为null");
-        assertEquals(1, result.size(), "收藏列表应有1条记录");
-        assertEquals(bookId, result.get(0).getId(), "收藏的图书ID应匹配");
+        assertNotNull(favorites, "收藏列表不应为null");
+        assertEquals(1, favorites.size(), "收藏列表应包含1项");
+        assertEquals(bookId, favorites.get(0).getId(), "收藏项应是测试图书");
     }
     
     /**
      * 测试用例: TC-CF01 收藏状态判断(已收藏)
-     * 白盒测试: 条件覆盖 - favoriteExists = true 的分支
+     * 白盒测试: 条件覆盖 - favoriteExists 为 true 的分支
      */
-    @DisplayName("收藏状态已收藏条件测试")
+    @DisplayName("TC-CF01: 收藏状态已收藏条件测试")
     @Test
     public void testFavoriteExistsConditionTrue() {
         // 准备已收藏状态
         favoriteService.addFavorite(userId, bookId);
         
-        // 执行添加收藏操作
+        // 执行添加收藏操作(应该失败，因为已存在)
         boolean result = favoriteService.addFavorite(userId, bookId);
         
         // 验证结果
@@ -297,11 +297,14 @@ public class FavoriteServiceTest {
     
     /**
      * 测试用例: TC-CF02 收藏状态判断(未收藏)
-     * 白盒测试: 条件覆盖 - favoriteExists = false 的分支
+     * 白盒测试: 条件覆盖 - favoriteExists 为 false 的分支
      */
-    @DisplayName("收藏状态未收藏条件测试")
+    @DisplayName("TC-CF02: 收藏状态未收藏条件测试")
     @Test
     public void testFavoriteExistsConditionFalse() {
+        // 确认未收藏状态
+        assertFalse(favoriteService.isFavorite(userId, bookId), "应为未收藏状态");
+        
         // 执行添加收藏操作
         boolean result = favoriteService.addFavorite(userId, bookId);
         
@@ -311,73 +314,83 @@ public class FavoriteServiceTest {
     
     /**
      * 测试用例: TC-CF03 图书存在判断
-     * 白盒测试: 条件覆盖 - 测试存在和不存在的图书ID
+     * 白盒测试: 条件覆盖 - bookExists 条件的 true 和 false 分支
      */
-    @DisplayName("图书存在条件测试")
+    @DisplayName("TC-CF03: 图书存在条件测试")
     @Test
     public void testBookExistsCondition() {
-        // 测试存在的图书
-        boolean result1 = favoriteService.addFavorite(userId, bookId);
-        assertTrue(result1, "存在的图书ID应收藏成功");
+        // 测试有效ID - 图书存在
+        boolean validResult = favoriteService.addFavorite(userId, bookId);
+        assertTrue(validResult, "存在的图书ID应收藏成功");
         
-        // 测试不存在的图书
-        boolean result2 = favoriteService.addFavorite(userId, nonExistingBookId);
-        assertFalse(result2, "不存在的图书ID应收藏失败");
+        // 测试无效ID - 图书不存在
+        boolean invalidResult = favoriteService.addFavorite(userId, nonExistingBookId);
+        assertFalse(invalidResult, "不存在的图书ID应收藏失败");
     }
     
     /**
      * 测试用例: TC-PF01 添加收藏成功路径
-     * 白盒测试: 路径测试 - 测试添加收藏的成功路径
+     * 白盒测试: 路径测试 - 添加收藏的完整成功路径
      */
-    @DisplayName("添加收藏成功路径测试")
+    @DisplayName("TC-PF01: 添加收藏成功路径测试")
     @Test
     public void testAddFavoriteSuccessPath() {
+        // 确认图书存在且未收藏
+        assertFalse(favoriteService.isFavorite(userId, bookId), "应为未收藏状态");
+        
         // 执行添加收藏操作
         boolean result = favoriteService.addFavorite(userId, bookId);
         
         // 验证结果
         assertTrue(result, "添加收藏应成功");
-        assertTrue(favoriteService.isFavorite(userId, bookId), "应成功添加收藏记录");
+        assertTrue(favoriteService.isFavorite(userId, bookId), "收藏记录应添加成功");
         
-        // 验证收藏计数
+        // 验证收藏计数已增加
         Book updatedBook = bookService.getById(bookId);
-        assertEquals(11, updatedBook.getFavoriteCount(), "收藏计数应增加");
+        assertEquals(11, updatedBook.getFavoriteCount(), "收藏计数应该增加1");
     }
     
     /**
      * 测试用例: TC-PF02 取消收藏成功路径
-     * 白盒测试: 路径测试 - 测试取消收藏的成功路径
+     * 白盒测试: 路径测试 - 取消收藏的完整成功路径
      */
-    @DisplayName("取消收藏成功路径测试")
+    @DisplayName("TC-PF02: 取消收藏成功路径测试")
     @Test
     public void testRemoveFavoriteSuccessPath() {
         // 准备已收藏状态
         favoriteService.addFavorite(userId, bookId);
+        assertTrue(favoriteService.isFavorite(userId, bookId), "准备阶段应为已收藏状态");
+        
+        // 记录收藏后的计数
+        Book bookAfterAdd = bookService.getById(bookId);
+        int countAfterAdd = bookAfterAdd.getFavoriteCount();
         
         // 执行取消收藏操作
         boolean result = favoriteService.removeFavorite(userId, bookId);
         
         // 验证结果
         assertTrue(result, "取消收藏应成功");
-        assertFalse(favoriteService.isFavorite(userId, bookId), "收藏记录应被删除");
+        assertFalse(favoriteService.isFavorite(userId, bookId), "收藏记录应删除成功");
         
-        // 验证收藏计数
-        Book updatedBook = bookService.getById(bookId);
-        assertEquals(10, updatedBook.getFavoriteCount(), "收藏计数应减少");
+        // 验证收藏计数已减少
+        Book bookAfterRemove = bookService.getById(bookId);
+        assertEquals(countAfterAdd - 1, bookAfterRemove.getFavoriteCount(), "收藏计数应该减少1");
     }
     
     /**
-     * 测试用例: 获取空收藏列表
-     * 测试：当用户没有收藏任何图书时的处理
+     * 测试场景: 空收藏列表测试
+     * 测试收藏列表为空的情况
      */
     @DisplayName("空收藏列表测试")
     @Test
     public void testGetAllUserFavoritesWithEmptyList() {
+        // 不添加任何收藏
+        
         // 执行获取收藏列表操作
-        List<Book> result = favoriteService.getAllUserFavorites(userId);
+        List<Book> favorites = favoriteService.getAllUserFavorites(userId);
         
         // 验证结果
-        assertNotNull(result, "即使没有收藏，返回结果也不应为null");
-        assertTrue(result.isEmpty(), "没有收藏时应返回空列表");
+        assertNotNull(favorites, "即使为空，收藏列表也不应为null");
+        assertTrue(favorites.isEmpty(), "收藏列表应为空");
     }
 } 

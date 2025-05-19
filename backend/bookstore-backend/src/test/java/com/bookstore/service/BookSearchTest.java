@@ -86,7 +86,7 @@ public class BookSearchTest {
      * 测试用例: TC-S01 标题+作者组合搜索
      * 决策表测试: 规则1(标题条件存在 + 作者条件存在)
      */
-    @DisplayName("标题+作者组合搜索测试")
+    @DisplayName("TC-S01: 标题+作者组合搜索测试")
     @Test
     public void testSearchByTitleAndAuthor() {
         // 准备测试数据
@@ -106,7 +106,7 @@ public class BookSearchTest {
      * 测试用例: TC-S02 仅标题搜索
      * 决策表测试: 规则2(标题条件存在 + 作者条件不存在)
      */
-    @DisplayName("仅标题搜索测试")
+    @DisplayName("TC-S02: 仅标题搜索测试")
     @Test
     public void testSearchByTitleOnly() {
         // 准备测试数据
@@ -128,7 +128,7 @@ public class BookSearchTest {
      * 测试用例: TC-S03 仅作者搜索
      * 决策表测试: 规则3(标题条件不存在 + 作者条件存在)
      */
-    @DisplayName("仅作者搜索测试")
+    @DisplayName("TC-S03: 仅作者搜索测试")
     @Test
     public void testSearchByAuthorOnly() {
         // 准备测试数据
@@ -151,7 +151,7 @@ public class BookSearchTest {
      * 测试用例: TC-S04 无条件搜索
      * 决策表测试: 规则4(标题条件不存在 + 作者条件不存在)
      */
-    @DisplayName("无条件搜索测试")
+    @DisplayName("TC-S04: 无条件搜索测试")
     @Test
     public void testSearchWithoutConditions() {
         // 准备测试数据
@@ -169,7 +169,7 @@ public class BookSearchTest {
      * 测试用例: TC-S05 按收藏量排序
      * 测试按收藏量从高到低排序功能
      */
-    @DisplayName("收藏量排序测试")
+    @DisplayName("TC-S05: 收藏量排序测试")
     @Test
     public void testSortByFavoriteCount() {
         // 准备测试数据
@@ -194,7 +194,7 @@ public class BookSearchTest {
      * 测试用例: TC-WS01 简单搜索语句覆盖
      * 白盒测试: 覆盖BookServiceImpl.listAllBooks()方法的所有语句
      */
-    @DisplayName("简单搜索语句覆盖测试")
+    @DisplayName("TC-WS01: 简单搜索语句覆盖测试")
     @Test
     public void testSimpleSearchStatementCoverage() {
         // 准备测试数据
@@ -212,7 +212,7 @@ public class BookSearchTest {
      * 测试用例: TC-WS03 排序功能语句覆盖
      * 白盒测试: 覆盖BookServiceImpl.listAllBooksAndSortByFavoriteCount()方法的所有语句
      */
-    @DisplayName("排序功能语句覆盖测试")
+    @DisplayName("TC-WS03: 排序功能语句覆盖测试")
     @Test
     public void testSortFunctionStatementCoverage() {
         // 准备测试数据
@@ -231,7 +231,7 @@ public class BookSearchTest {
      * 测试用例: TC-CS01 搜索条件非空判断(标题)
      * 白盒测试: 条件覆盖 - 测试StringUtils.hasText(query)条件的true和false分支
      */
-    @DisplayName("搜索条件非空判断测试")
+    @DisplayName("TC-CS01: 搜索条件非空判断测试")
     @Test
     public void testQueryNotEmptyCondition() {
         // 测试条件为真的情况
@@ -249,7 +249,7 @@ public class BookSearchTest {
      * 测试用例: TC-CS02 搜索条件空判断
      * 白盒测试: 条件覆盖 - 测试StringUtils.hasText(query)条件的false分支
      */
-    @DisplayName("搜索条件空判断测试")
+    @DisplayName("TC-CS02: 搜索条件空判断测试")
     @Test
     public void testQueryEmptyCondition() {
         // 测试条件为假的情况
@@ -258,8 +258,8 @@ public class BookSearchTest {
         // 执行测试
         List<Book> results = bookService.listAllBooks(query);
         
-        // 验证结果 - 应返回所有数据
-        assertNotNull(results);
-        assertTrue(results.size() >= 4, "空查询条件应返回所有图书");
+        // 验证结果 - 不应应用过滤条件
+        assertNotNull(results, "搜索结果不应为null");
+        assertTrue(results.size() >= 4, "应返回所有图书");
     }
 } 
