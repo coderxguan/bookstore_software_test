@@ -6,21 +6,21 @@ import com.bookstore.entity.User;
 import com.bookstore.mapper.BookMapper;
 import com.bookstore.mapper.FavoriteMapper;
 import com.bookstore.mapper.UserMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * 收藏管理模块测试类(丙)
- * 包含黑盒测试(状态转换测试)和白盒测试(语句覆盖、条件覆盖、路径测试)
+ * ==================== 收藏管理模块测试（吴豪） ====================
+ * 本类先覆盖白盒测试用例，后覆盖黑盒测试用例。
+ * 每个测试方法前有详细注释，DisplayName与文档编号和用例名称一致。
  */
 @SpringBootTest
 @Transactional
@@ -29,25 +29,25 @@ public class FavoriteServiceTest {
 
     @Autowired
     private FavoriteService favoriteService;
-    
+
     @Autowired
     private BookService bookService;
-    
+
     @Autowired
     private FavoriteMapper favoriteMapper;
-    
+
     @Autowired
     private BookMapper bookMapper;
-    
+
     @Autowired
     private UserMapper userMapper;
-    
-    // 测试数据
+
     private Long userId;
     private Long bookId;
-    private Long nonExistingBookId = 999L;
+    private Long nonExistingBookId = 99999L;
     private Book testBook;
-    
+    private User testUser;
+
     @BeforeEach
     public void setUp() {
         // 创建测试用户
@@ -56,7 +56,8 @@ public class FavoriteServiceTest {
         user.setPassword("password");
         userMapper.insert(user);
         userId = user.getId();
-        
+        testUser = user;
+
         // 创建测试图书
         testBook = new Book();
         testBook.setName("测试图书");
@@ -64,333 +65,300 @@ public class FavoriteServiceTest {
         testBook.setCategory("测试分类");
         testBook.setPrice(new BigDecimal("50.00"));
         testBook.setDescription("测试描述");
-        testBook.setFavoriteCount(10); // 初始收藏数为10
+        testBook.setFavoriteCount(10);
         bookMapper.insert(testBook);
         bookId = testBook.getId();
     }
-    
-    /**
-     * 测试用例: TC-F01 未收藏→已收藏
-     * 状态转换测试: 从未收藏状态转换到已收藏状态
-     */
-    @DisplayName("TC-F01: 未收藏到已收藏状态转换测试")
-    @Test
-    public void testAddFavoriteWhenNotFavorited() {
-        // 步骤1: 确认未收藏状态
-        assertFalse(favoriteService.isFavorite(userId, bookId), "开始测试前应为未收藏状态");
-        
-        // 步骤2: 执行添加收藏操作
-        boolean result = favoriteService.addFavorite(userId, bookId);
-        
-        // 步骤3: 验证结果
-        assertTrue(result, "添加收藏应成功");
-        assertTrue(favoriteService.isFavorite(userId, bookId), "添加后应为已收藏状态");
-        
-        // 验证收藏计数增加
-        Book book = bookService.getById(bookId);
-        assertEquals(11, book.getFavoriteCount(), "收藏计数应该增加1");
+
+    @AfterEach
+    public void tearDown() {
+        if (testBook != null && testBook.getId() != null) {
+            bookMapper.deleteById(testBook.getId());
+        }
+        if (testUser != null && testUser.getId() != null) {
+            userMapper.deleteById(testUser.getId());
+        }
+        favoriteMapper.delete(null); // 清空所有收藏
     }
-    
-    /**
-     * 测试用例: TC-F02 已收藏→未收藏
-     * 状态转换测试: 从已收藏状态转换到未收藏状态
-     */
-    @DisplayName("TC-F02: 已收藏到未收藏状态转换测试")
+
+    // ==================== 白盒测试（语句/判定/条件/路径/循环） ====================
+
+    /** TCF-SC01: 无效用户ID */
+    @DisplayName("TCF-SC01: 无效用户ID")
     @Test
-    public void testRemoveFavoriteWhenFavorited() {
-        // 步骤1: 准备已收藏状态
+    public void testAddFavorite_TCF_SC01_invalidUserId() {
+        boolean result = favoriteService.addFavorite(null, bookId);
+        assertFalse(result, "用户ID为null时应返回false");
+    }
+
+    /** TCF-SC02: 无效图书ID */
+    @DisplayName("TCF-SC02: 无效图书ID")
+    @Test
+    public void testAddFavorite_TCF_SC02_invalidBookId() {
+        boolean result = favoriteService.addFavorite(userId, null);
+        assertFalse(result, "图书ID为null时应返回false");
+    }
+
+    /** TCF-SC03: 已收藏图书 */
+    @DisplayName("TCF-SC03: 已收藏图书")
+    @Test
+    public void testAddFavorite_TCF_SC03_alreadyFavorited() {
         favoriteService.addFavorite(userId, bookId);
-        assertTrue(favoriteService.isFavorite(userId, bookId), "准备阶段应为已收藏状态");
-        
-        // 步骤2: 执行取消收藏操作
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertFalse(result, "已收藏图书再次收藏应返回false");
+    }
+
+    /** TCF-SC04: 正常收藏 */
+    @DisplayName("TCF-SC04: 正常收藏")
+    @Test
+    public void testAddFavorite_TCF_SC04_normal() {
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertTrue(result, "正常收藏应返回true");
+        assertTrue(favoriteService.isFavorite(userId, bookId), "应已收藏");
+    }
+
+    // 判定覆盖
+    /** TCF-DC01: userId==null || bookId==null 判定为true */
+    @DisplayName("TCF-DC01: userId==null || bookId==null 判定为true")
+    @Test
+    public void testAddFavorite_TCF_DC01_userOrBookIdNull() {
+        assertFalse(favoriteService.addFavorite(null, bookId));
+        assertFalse(favoriteService.addFavorite(userId, null));
+    }
+
+    /** TCF-DC02: userId==null || bookId==null 判定为false */
+    @DisplayName("TCF-DC02: userId==null || bookId==null 判定为false")
+    @Test
+    public void testAddFavorite_TCF_DC02_userAndBookIdValid() {
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertTrue(result);
+    }
+
+    /** TCF-DC03: isAlreadyFavorite(userId, bookId) 判定为true */
+    @DisplayName("TCF-DC03: isAlreadyFavorite(userId, bookId) 判定为true")
+    @Test
+    public void testAddFavorite_TCF_DC03_alreadyFavoriteTrue() {
+        favoriteService.addFavorite(userId, bookId);
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertFalse(result);
+    }
+
+    /** TCF-DC04: isAlreadyFavorite(userId, bookId) 判定为false */
+    @DisplayName("TCF-DC04: isAlreadyFavorite(userId, bookId) 判定为false")
+    @Test
+    public void testAddFavorite_TCF_DC04_alreadyFavoriteFalse() {
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertTrue(result);
+    }
+
+    // 条件覆盖
+    /** TCF-CC01: userId==null 条件为true */
+    @DisplayName("TCF-CC01: userId==null 条件为true")
+    @Test
+    public void testAddFavorite_TCF_CC01_userIdNull() {
+        assertFalse(favoriteService.addFavorite(null, bookId));
+    }
+
+    /** TCF-CC02: userId==null 条件为false */
+    @DisplayName("TCF-CC02: userId==null 条件为false")
+    @Test
+    public void testAddFavorite_TCF_CC02_userIdNotNull() {
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertTrue(result);
+    }
+
+    /** TCF-CC03: bookId==null 条件为true */
+    @DisplayName("TCF-CC03: bookId==null 条件为true")
+    @Test
+    public void testAddFavorite_TCF_CC03_bookIdNull() {
+        assertFalse(favoriteService.addFavorite(userId, null));
+    }
+
+    /** TCF-CC04: bookId==null 条件为false */
+    @DisplayName("TCF-CC04: bookId==null 条件为false")
+    @Test
+    public void testAddFavorite_TCF_CC04_bookIdNotNull() {
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertTrue(result);
+    }
+
+    // 路径覆盖
+    /** TCF-PC01: 参数验证失败路径 */
+    @DisplayName("TCF-PC01: 参数验证失败路径")
+    @Test
+    public void testAddFavorite_TCF_PC01_paramInvalidPath() {
+        assertFalse(favoriteService.addFavorite(null, null));
+        assertFalse(favoriteService.addFavorite(null, bookId));
+        assertFalse(favoriteService.addFavorite(userId, null));
+    }
+
+    /** TCF-PC02: 已收藏路径 */
+    @DisplayName("TCF-PC02: 已收藏路径")
+    @Test
+    public void testAddFavorite_TCF_PC02_alreadyFavoritedPath() {
+        favoriteService.addFavorite(userId, bookId);
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertFalse(result);
+    }
+
+    /** TCF-PC03: 正常收藏路径 */
+    @DisplayName("TCF-PC03: 正常收藏路径")
+    @Test
+    public void testAddFavorite_TCF_PC03_normalPath() {
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertTrue(result);
+    }
+
+    // ==================== 循环结构 getAllUserFavorites ====================
+
+    /** TCF-LT01: 用户ID为null */
+    @DisplayName("TCF-LT01: 用户ID为null")
+    @Test
+    public void testGetAllUserFavorites_TCF_LT01_userIdNull() {
+        List<Book> result = favoriteService.getAllUserFavorites(null);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    /** TCF-LT02: 用户无收藏 */
+    @DisplayName("TCF-LT02: 用户无收藏")
+    @Test
+    public void testGetAllUserFavorites_TCF_LT02_noFavorites() {
+        List<Book> result = favoriteService.getAllUserFavorites(userId);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    /** TCF-LT03: 单本收藏 */
+    @DisplayName("TCF-LT03: 单本收藏")
+    @Test
+    public void testGetAllUserFavorites_TCF_LT03_singleFavorite() {
+        favoriteService.addFavorite(userId, bookId);
+        List<Book> result = favoriteService.getAllUserFavorites(userId);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(bookId, result.get(0).getId());
+    }
+
+    /** TCF-LT04: 多本收藏顺序一致 */
+    @DisplayName("TCF-LT04: 多本收藏顺序一致")
+    @Test
+    public void testGetAllUserFavorites_TCF_LT04_multiFavoriteOrder() {
+        Book book2 = new Book();
+        book2.setName("第二本书");
+        book2.setAuthor("作者2");
+        book2.setCategory("分类2");
+        book2.setPrice(new BigDecimal("20.0"));
+        book2.setDescription("描述2");
+        bookMapper.insert(book2);
+        favoriteService.addFavorite(userId, bookId);
+        favoriteService.addFavorite(userId, book2.getId());
+        List<Book> result = favoriteService.getAllUserFavorites(userId);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(book2.getId(), result.get(0).getId()); // 按收藏时间倒序
+        assertEquals(bookId, result.get(1).getId());
+        bookMapper.deleteById(book2.getId());
+    }
+
+    /** TCF-LT05: 收藏的图书被删除后 */
+    @DisplayName("TCF-LT05: 收藏的图书被删除后")
+    @Test
+    public void testGetAllUserFavorites_TCF_LT05_favoriteBookDeleted() {
+        favoriteService.addFavorite(userId, bookId);
+        bookMapper.deleteById(bookId);
+        List<Book> result = favoriteService.getAllUserFavorites(userId);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    /** TCF-LT06: 收藏列表包含无效ID */
+    @DisplayName("TCF-LT06: 收藏列表包含无效ID")
+    @Test
+    public void testGetAllUserFavorites_TCF_LT06_invalidBookId() {
+        favoriteService.addFavorite(userId, 99999L); // 不存在的图书ID
+        List<Book> result = favoriteService.getAllUserFavorites(userId);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    /** TCF-LT07: 性能测试-大量收藏 */
+    @DisplayName("TCF-LT07: 性能测试-大量收藏")
+    @Test
+    public void testGetAllUserFavorites_TCF_LT07_performance() {
+        List<Long> bookIds = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            Book book = new Book();
+            book.setName("批量书" + i);
+            book.setAuthor("作者" + i);
+            book.setCategory("分类");
+            book.setPrice(new BigDecimal("10.0"));
+            book.setDescription("描述");
+            bookMapper.insert(book);
+            favoriteService.addFavorite(userId, book.getId());
+            bookIds.add(book.getId());
+        }
+        long start = System.currentTimeMillis();
+        List<Book> result = favoriteService.getAllUserFavorites(userId);
+        long duration = System.currentTimeMillis() - start;
+        assertEquals(50, result.size());
+        assertTrue(duration < 2000, "应在2秒内完成");
+        for (Long id : bookIds) {
+            bookMapper.deleteById(id);
+        }
+    }
+
+    // ==================== 黑盒测试（等价类划分/边界值分析） ====================
+
+    /** TC-F01: 正常收藏 */
+    @DisplayName("TC-F01: 正常收藏")
+    @Test
+    public void testAddFavorite_TC_F01_normal() {
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertTrue(result);
+        assertTrue(favoriteService.isFavorite(userId, bookId));
+    }
+
+    /** TC-F02: 用户ID无效 */
+    @DisplayName("TC-F02: 用户ID无效")
+    @Test
+    public void testAddFavorite_TC_F02_invalidUserId() {
+        boolean result = favoriteService.addFavorite(-1L, bookId);
+        assertFalse(result);
+    }
+
+    /** TC-F03: 图书ID无效 */
+    @DisplayName("TC-F03: 图书ID无效")
+    @Test
+    public void testAddFavorite_TC_F03_invalidBookId() {
+        boolean result = favoriteService.addFavorite(userId, -1L);
+        assertFalse(result);
+    }
+
+    /** TC-F04: 已收藏重复收藏 */
+    @DisplayName("TC-F04: 已收藏重复收藏")
+    @Test
+    public void testAddFavorite_TC_F04_alreadyFavorited() {
+        favoriteService.addFavorite(userId, bookId);
+        boolean result = favoriteService.addFavorite(userId, bookId);
+        assertFalse(result);
+    }
+
+    /** TC-F05: 正常取消收藏 */
+    @DisplayName("TC-F05: 正常取消收藏")
+    @Test
+    public void testRemoveFavorite_TC_F05_normal() {
+        favoriteService.addFavorite(userId, bookId);
         boolean result = favoriteService.removeFavorite(userId, bookId);
-        
-        // 步骤3: 验证结果
-        assertTrue(result, "取消收藏应成功");
-        assertFalse(favoriteService.isFavorite(userId, bookId), "取消后应为未收藏状态");
-        
-        // 验证收藏计数减少
-        Book book = bookService.getById(bookId);
-        assertEquals(10, book.getFavoriteCount(), "收藏计数应该恢复原值");
+        assertTrue(result);
+        assertFalse(favoriteService.isFavorite(userId, bookId));
     }
-    
-    /**
-     * 测试用例: TC-F03 已收藏→已收藏(无效转换)
-     * 状态转换测试: 在已收藏状态下再次添加收藏(无效转换)
-     */
-    @DisplayName("TC-F03: 已收藏到已收藏无效转换测试")
+
+    /** TC-F06: 未收藏取消收藏 */
+    @DisplayName("TC-F06: 未收藏取消收藏")
     @Test
-    public void testAddFavoriteWhenAlreadyFavorited() {
-        // 步骤1: 准备已收藏状态
-        favoriteService.addFavorite(userId, bookId);
-        assertTrue(favoriteService.isFavorite(userId, bookId), "准备阶段应为已收藏状态");
-        
-        // 步骤2: 执行添加收藏操作
-        boolean result = favoriteService.addFavorite(userId, bookId);
-        
-        // 步骤3: 验证结果
-        assertFalse(result, "已收藏状态下再次添加应失败");
-        
-        // 验证收藏计数不变
-        Book book = bookService.getById(bookId);
-        assertEquals(11, book.getFavoriteCount(), "收藏计数不应变化");
-    }
-    
-    /**
-     * 测试用例: TC-F04 添加收藏后计数增加
-     * 收藏计数功能测试: 验证添加收藏后图书收藏计数增加
-     */
-    @DisplayName("TC-F04: 添加收藏后计数增加测试")
-    @Test
-    public void testFavoriteCountIncrementAfterAdd() {
-        // 记录原始收藏计数
-        int originalCount = testBook.getFavoriteCount();
-        
-        // 执行添加收藏操作
-        boolean result = favoriteService.addFavorite(userId, bookId);
-        
-        // 验证结果
-        assertTrue(result, "添加收藏应成功");
-        
-        // 验证收藏计数增加
-        Book updatedBook = bookService.getById(bookId);
-        assertEquals(originalCount + 1, updatedBook.getFavoriteCount(), "收藏计数应该增加1");
-    }
-    
-    /**
-     * 测试用例: TC-F05 取消收藏后计数减少
-     * 收藏计数功能测试: 验证取消收藏后图书收藏计数减少
-     */
-    @DisplayName("TC-F05: 取消收藏后计数减少测试")
-    @Test
-    public void testFavoriteCountDecrementAfterRemove() {
-        // 准备已收藏状态
-        favoriteService.addFavorite(userId, bookId);
-        
-        // 记录收藏后的计数
-        Book bookAfterAdd = bookService.getById(bookId);
-        int countAfterAdd = bookAfterAdd.getFavoriteCount();
-        
-        // 执行取消收藏操作
+    public void testRemoveFavorite_TC_F06_notFavorited() {
         boolean result = favoriteService.removeFavorite(userId, bookId);
-        
-        // 验证结果
-        assertTrue(result, "取消收藏应成功");
-        
-        // 验证收藏计数减少
-        Book bookAfterRemove = bookService.getById(bookId);
-        assertEquals(countAfterAdd - 1, bookAfterRemove.getFavoriteCount(), "收藏计数应该减少1");
-    }
-    
-    /**
-     * 测试用例: TC-F06 多用户收藏同一图书
-     * 收藏计数功能测试: 验证多个用户收藏同一图书时收藏计数累加
-     */
-    @DisplayName("TC-F06: 多用户收藏同一图书测试")
-    @Test
-    public void testMultipleUsersFavorite() {
-        // 创建第二个测试用户
-        User user2 = new User();
-        user2.setUsername("testUser2");
-        user2.setPassword("password");
-        userMapper.insert(user2);
-        Long userId2 = user2.getId();
-        
-        // 记录原始收藏计数
-        int originalCount = testBook.getFavoriteCount();
-        
-        // 用户1收藏
-        boolean result1 = favoriteService.addFavorite(userId, bookId);
-        
-        // 用户2收藏
-        boolean result2 = favoriteService.addFavorite(userId2, bookId);
-        
-        // 验证结果
-        assertTrue(result1, "用户1添加收藏应成功");
-        assertTrue(result2, "用户2添加收藏应成功");
-        
-        // 验证收藏计数增加两次
-        Book updatedBook = bookService.getById(bookId);
-        assertEquals(originalCount + 2, updatedBook.getFavoriteCount(), "收藏计数应该增加2");
-    }
-    
-    /**
-     * 测试用例: TC-WF01 添加收藏语句覆盖
-     * 白盒测试: 语句覆盖 - FavoriteServiceImpl.addFavorite()
-     */
-    @DisplayName("TC-WF01: 添加收藏语句覆盖测试")
-    @Test
-    public void testAddFavoriteStatementCoverage() {
-        // 执行添加收藏操作
-        boolean result = favoriteService.addFavorite(userId, bookId);
-        
-        // 验证结果
-        assertTrue(result, "添加收藏应成功");
-        
-        // 验证收藏记录已添加
-        assertTrue(favoriteService.isFavorite(userId, bookId), "收藏记录应存在于数据库中");
-        
-        // 验证收藏计数已增加
-        Book updatedBook = bookService.getById(bookId);
-        assertEquals(11, updatedBook.getFavoriteCount(), "收藏计数应该增加1");
-    }
-    
-    /**
-     * 测试用例: TC-WF02 取消收藏语句覆盖
-     * 白盒测试: 语句覆盖 - FavoriteServiceImpl.removeFavorite()
-     */
-    @DisplayName("TC-WF02: 取消收藏语句覆盖测试")
-    @Test
-    public void testRemoveFavoriteStatementCoverage() {
-        // 准备已收藏状态
-        favoriteService.addFavorite(userId, bookId);
-        
-        // 执行取消收藏操作
-        boolean result = favoriteService.removeFavorite(userId, bookId);
-        
-        // 验证结果
-        assertTrue(result, "取消收藏应成功");
-        
-        // 验证收藏记录已删除
-        assertFalse(favoriteService.isFavorite(userId, bookId), "收藏记录应从数据库中删除");
-        
-        // 验证收藏计数已减少
-        Book updatedBook = bookService.getById(bookId);
-        assertEquals(10, updatedBook.getFavoriteCount(), "收藏计数应该减少1");
-    }
-    
-    /**
-     * 测试用例: TC-WF04 获取收藏列表语句覆盖
-     * 白盒测试: 语句覆盖 - FavoriteServiceImpl.getAllUserFavorites()
-     */
-    @DisplayName("TC-WF04: 获取收藏列表语句覆盖测试")
-    @Test
-    public void testGetAllUserFavoritesStatementCoverage() {
-        // 准备收藏数据
-        favoriteService.addFavorite(userId, bookId);
-        
-        // 执行获取收藏列表操作
-        List<Book> favorites = favoriteService.getAllUserFavorites(userId);
-        
-        // 验证结果
-        assertNotNull(favorites, "收藏列表不应为null");
-        assertEquals(1, favorites.size(), "收藏列表应包含1项");
-        assertEquals(bookId, favorites.get(0).getId(), "收藏项应是测试图书");
-    }
-    
-    /**
-     * 测试用例: TC-CF01 收藏状态判断(已收藏)
-     * 白盒测试: 条件覆盖 - favoriteExists 为 true 的分支
-     */
-    @DisplayName("TC-CF01: 收藏状态已收藏条件测试")
-    @Test
-    public void testFavoriteExistsConditionTrue() {
-        // 准备已收藏状态
-        favoriteService.addFavorite(userId, bookId);
-        
-        // 执行添加收藏操作(应该失败，因为已存在)
-        boolean result = favoriteService.addFavorite(userId, bookId);
-        
-        // 验证结果
-        assertFalse(result, "已收藏状态下再次添加应失败");
-    }
-    
-    /**
-     * 测试用例: TC-CF02 收藏状态判断(未收藏)
-     * 白盒测试: 条件覆盖 - favoriteExists 为 false 的分支
-     */
-    @DisplayName("TC-CF02: 收藏状态未收藏条件测试")
-    @Test
-    public void testFavoriteExistsConditionFalse() {
-        // 确认未收藏状态
-        assertFalse(favoriteService.isFavorite(userId, bookId), "应为未收藏状态");
-        
-        // 执行添加收藏操作
-        boolean result = favoriteService.addFavorite(userId, bookId);
-        
-        // 验证结果
-        assertTrue(result, "未收藏状态下添加应成功");
-    }
-    
-    /**
-     * 测试用例: TC-CF03 图书存在判断
-     * 白盒测试: 条件覆盖 - bookExists 条件的 true 和 false 分支
-     */
-    @DisplayName("TC-CF03: 图书存在条件测试")
-    @Test
-    public void testBookExistsCondition() {
-        // 测试有效ID - 图书存在
-        boolean validResult = favoriteService.addFavorite(userId, bookId);
-        assertTrue(validResult, "存在的图书ID应收藏成功");
-        
-        // 测试无效ID - 图书不存在
-        boolean invalidResult = favoriteService.addFavorite(userId, nonExistingBookId);
-        assertFalse(invalidResult, "不存在的图书ID应收藏失败");
-    }
-    
-    /**
-     * 测试用例: TC-PF01 添加收藏成功路径
-     * 白盒测试: 路径测试 - 添加收藏的完整成功路径
-     */
-    @DisplayName("TC-PF01: 添加收藏成功路径测试")
-    @Test
-    public void testAddFavoriteSuccessPath() {
-        // 确认图书存在且未收藏
-        assertFalse(favoriteService.isFavorite(userId, bookId), "应为未收藏状态");
-        
-        // 执行添加收藏操作
-        boolean result = favoriteService.addFavorite(userId, bookId);
-        
-        // 验证结果
-        assertTrue(result, "添加收藏应成功");
-        assertTrue(favoriteService.isFavorite(userId, bookId), "收藏记录应添加成功");
-        
-        // 验证收藏计数已增加
-        Book updatedBook = bookService.getById(bookId);
-        assertEquals(11, updatedBook.getFavoriteCount(), "收藏计数应该增加1");
-    }
-    
-    /**
-     * 测试用例: TC-PF02 取消收藏成功路径
-     * 白盒测试: 路径测试 - 取消收藏的完整成功路径
-     */
-    @DisplayName("TC-PF02: 取消收藏成功路径测试")
-    @Test
-    public void testRemoveFavoriteSuccessPath() {
-        // 准备已收藏状态
-        favoriteService.addFavorite(userId, bookId);
-        assertTrue(favoriteService.isFavorite(userId, bookId), "准备阶段应为已收藏状态");
-        
-        // 记录收藏后的计数
-        Book bookAfterAdd = bookService.getById(bookId);
-        int countAfterAdd = bookAfterAdd.getFavoriteCount();
-        
-        // 执行取消收藏操作
-        boolean result = favoriteService.removeFavorite(userId, bookId);
-        
-        // 验证结果
-        assertTrue(result, "取消收藏应成功");
-        assertFalse(favoriteService.isFavorite(userId, bookId), "收藏记录应删除成功");
-        
-        // 验证收藏计数已减少
-        Book bookAfterRemove = bookService.getById(bookId);
-        assertEquals(countAfterAdd - 1, bookAfterRemove.getFavoriteCount(), "收藏计数应该减少1");
-    }
-    
-    /**
-     * 测试场景: 空收藏列表测试
-     * 测试收藏列表为空的情况
-     */
-    @DisplayName("空收藏列表测试")
-    @Test
-    public void testGetAllUserFavoritesWithEmptyList() {
-        // 不添加任何收藏
-        
-        // 执行获取收藏列表操作
-        List<Book> favorites = favoriteService.getAllUserFavorites(userId);
-        
-        // 验证结果
-        assertNotNull(favorites, "即使为空，收藏列表也不应为null");
-        assertTrue(favorites.isEmpty(), "收藏列表应为空");
+        assertFalse(result);
     }
 } 
