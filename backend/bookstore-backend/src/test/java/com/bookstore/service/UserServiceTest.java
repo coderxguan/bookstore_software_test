@@ -48,23 +48,23 @@ public class UserServiceTest {
         userMapper.delete(null); // 清空所有用户
     }
 
-    // ==================== 白盒测试（语句/判定/条件/路径/循环） ====================
+    // ==================== 白盒测试（语句/判定/条件/路径） ====================
 
-    /** TCU-SC01: 用户名已存在 */
-    @DisplayName("TCU-SC01: 用户名已存在")
+    /** SU01: 用户名已存在，返回false */
     @Test
-    public void testRegister_TCU_SC01_usernameExists() {
+    @DisplayName("SU01: 用户名已存在，返回false")
+    public void testRegister_SU01_usernameExists() {
         User user = new User();
         user.setUsername(existUsername);
         user.setPassword("anyPass");
         boolean result = userService.register(user);
-        assertFalse(result, "用户名已存在时注册应失败");
+        assertFalse(result);
     }
 
-    /** TCU-SC02: 状态为null */
-    @DisplayName("TCU-SC02: 状态为null")
+    /** SU02: 状态为null，设置为1并返回true */
     @Test
-    public void testRegister_TCU_SC02_statusNull() {
+    @DisplayName("SU02: 状态为null，设置为1并返回true")
+    public void testRegister_SU02_statusNull() {
         User user = new User();
         user.setUsername("newUser1");
         user.setPassword("pass1234");
@@ -76,10 +76,10 @@ public class UserServiceTest {
         assertEquals(1, dbUser.getStatus());
     }
 
-    /** TCU-SC03: 状态非null */
-    @DisplayName("TCU-SC03: 状态非null")
+    /** SU03: 状态非null，保持原值并返回true */
     @Test
-    public void testRegister_TCU_SC03_statusNotNull() {
+    @DisplayName("SU03: 状态非null，保持原值并返回true")
+    public void testRegister_SU03_statusNotNull() {
         User user = new User();
         user.setUsername("newUser2");
         user.setPassword("pass1234");
@@ -88,188 +88,6 @@ public class UserServiceTest {
         assertTrue(result);
         User dbUser = userMapper.selectById(user.getId());
         assertNotNull(dbUser);
-        assertEquals(2, dbUser.getStatus());
-    }
-
-    // 判定覆盖
-    /** TCU-DC01: checkUsernameExists(user.getUsername()) 判定为true */
-    @DisplayName("TCU-DC01: checkUsernameExists(user.getUsername()) 判定为true")
-    @Test
-    public void testRegister_TCU_DC01_usernameExists() {
-        User user = new User();
-        user.setUsername(existUsername);
-        user.setPassword("anyPass");
-        boolean result = userService.register(user);
-        assertFalse(result);
-    }
-
-    /** TCU-DC02: checkUsernameExists(user.getUsername()) 判定为false */
-    @DisplayName("TCU-DC02: checkUsernameExists(user.getUsername()) 判定为false")
-    @Test
-    public void testRegister_TCU_DC02_usernameNotExists() {
-        User user = new User();
-        user.setUsername("uniqueUser");
-        user.setPassword("pass1234");
-        boolean result = userService.register(user);
-        assertTrue(result);
-    }
-
-    /** TCU-DC03: user.getStatus()==null 判定为true */
-    @DisplayName("TCU-DC03: user.getStatus()==null 判定为true")
-    @Test
-    public void testRegister_TCU_DC03_statusNull() {
-        User user = new User();
-        user.setUsername("uniqueUser2");
-        user.setPassword("pass1234");
-        user.setStatus(null);
-        boolean result = userService.register(user);
-        assertTrue(result);
-        User dbUser = userMapper.selectById(user.getId());
-        assertEquals(1, dbUser.getStatus());
-    }
-
-    /** TCU-DC04: user.getStatus()==null 判定为false */
-    @DisplayName("TCU-DC04: user.getStatus()==null 判定为false")
-    @Test
-    public void testRegister_TCU_DC04_statusNotNull() {
-        User user = new User();
-        user.setUsername("uniqueUser3");
-        user.setPassword("pass1234");
-        user.setStatus(2);
-        boolean result = userService.register(user);
-        assertTrue(result);
-        User dbUser = userMapper.selectById(user.getId());
-        assertEquals(2, dbUser.getStatus());
-    }
-
-    // 条件覆盖
-    /** TCU-CC01: checkUsernameExists(user.getUsername()) 条件为true */
-    @DisplayName("TCU-CC01: checkUsernameExists(user.getUsername()) 条件为true")
-    @Test
-    public void testRegister_TCU_CC01_usernameExists() {
-        User user = new User();
-        user.setUsername(existUsername);
-        user.setPassword("anyPass");
-        boolean result = userService.register(user);
-        assertFalse(result);
-    }
-
-    /** TCU-CC02: checkUsernameExists(user.getUsername()) 条件为false */
-    @DisplayName("TCU-CC02: checkUsernameExists(user.getUsername()) 条件为false")
-    @Test
-    public void testRegister_TCU_CC02_usernameNotExists() {
-        User user = new User();
-        user.setUsername("uniqueUser4");
-        user.setPassword("pass1234");
-        boolean result = userService.register(user);
-        assertTrue(result);
-    }
-
-    /** TCU-CC03: user.getStatus()==null 条件为true */
-    @DisplayName("TCU-CC03: user.getStatus()==null 条件为true")
-    @Test
-    public void testRegister_TCU_CC03_statusNull() {
-        User user = new User();
-        user.setUsername("uniqueUser5");
-        user.setPassword("pass1234");
-        user.setStatus(null);
-        boolean result = userService.register(user);
-        assertTrue(result);
-        User dbUser = userMapper.selectById(user.getId());
-        assertEquals(1, dbUser.getStatus());
-    }
-
-    /** TCU-CC04: user.getStatus()==null 条件为false */
-    @DisplayName("TCU-CC04: user.getStatus()==null 条件为false")
-    @Test
-    public void testRegister_TCU_CC04_statusNotNull() {
-        User user = new User();
-        user.setUsername("uniqueUser6");
-        user.setPassword("pass1234");
-        user.setStatus(2);
-        boolean result = userService.register(user);
-        assertTrue(result);
-        User dbUser = userMapper.selectById(user.getId());
-        assertEquals(2, dbUser.getStatus());
-    }
-
-    // 判定/条件组合覆盖
-    /** TCU-MCC01: checkUsernameExists()=true */
-    @DisplayName("TCU-MCC01: checkUsernameExists()=true")
-    @Test
-    public void testRegister_TCU_MCC01_usernameExists() {
-        User user = new User();
-        user.setUsername(existUsername);
-        user.setPassword("anyPass");
-        boolean result = userService.register(user);
-        assertFalse(result);
-    }
-
-    /** TCU-MCC02: checkUsernameExists()=false, status=null */
-    @DisplayName("TCU-MCC02: checkUsernameExists()=false, status=null")
-    @Test
-    public void testRegister_TCU_MCC02_statusNull() {
-        User user = new User();
-        user.setUsername("uniqueUser7");
-        user.setPassword("pass1234");
-        user.setStatus(null);
-        boolean result = userService.register(user);
-        assertTrue(result);
-        User dbUser = userMapper.selectById(user.getId());
-        assertEquals(1, dbUser.getStatus());
-    }
-
-    /** TCU-MCC03: checkUsernameExists()=false, status非null */
-    @DisplayName("TCU-MCC03: checkUsernameExists()=false, status非null")
-    @Test
-    public void testRegister_TCU_MCC03_statusNotNull() {
-        User user = new User();
-        user.setUsername("uniqueUser8");
-        user.setPassword("pass1234");
-        user.setStatus(2);
-        boolean result = userService.register(user);
-        assertTrue(result);
-        User dbUser = userMapper.selectById(user.getId());
-        assertEquals(2, dbUser.getStatus());
-    }
-
-    // ==================== 路径覆盖
-    /** TCU-PC01: 用户名已存在路径 */
-    @DisplayName("TCU-PC01: 用户名已存在路径")
-    @Test
-    public void testRegister_TCU_PC01_usernameExistsPath() {
-        User user = new User();
-        user.setUsername(existUsername);
-        user.setPassword("anyPass");
-        boolean result = userService.register(user);
-        assertFalse(result);
-    }
-
-    /** TCU-PC02: 新用户，status为null路径 */
-    @DisplayName("TCU-PC02: 新用户，status为null路径")
-    @Test
-    public void testRegister_TCU_PC02_statusNullPath() {
-        User user = new User();
-        user.setUsername("uniqueUser9");
-        user.setPassword("pass1234");
-        user.setStatus(null);
-        boolean result = userService.register(user);
-        assertTrue(result);
-        User dbUser = userMapper.selectById(user.getId());
-        assertEquals(1, dbUser.getStatus());
-    }
-
-    /** TCU-PC03: 新用户，status已设置路径 */
-    @DisplayName("TCU-PC03: 新用户，status已设置路径")
-    @Test
-    public void testRegister_TCU_PC03_statusSetPath() {
-        User user = new User();
-        user.setUsername("uniqueUser10");
-        user.setPassword("pass1234");
-        user.setStatus(2);
-        boolean result = userService.register(user);
-        assertTrue(result);
-        User dbUser = userMapper.selectById(user.getId());
         assertEquals(2, dbUser.getStatus());
     }
 

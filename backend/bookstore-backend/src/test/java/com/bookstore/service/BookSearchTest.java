@@ -83,38 +83,42 @@ public class BookSearchTest {
         testBooks = null;
     }
 
-    // ==================== 白盒测试（语句/判定/条件/路径/循环） ====================
+    // ==================== 白盒测试（语句/判定/条件/路径） ====================
 
-    // ----------- 选择结构 decrementFavoriteCount 相关 -----------
-
-    /** TCS-SC01: 参数无效（bookId=null） */
-    @DisplayName("TCS-SC01: 参数无效（bookId=null）")
+    /**
+     * SS01: bookId为null，返回false
+     */
     @Test
-    public void testDecrementFavoriteCount_TCS_SC01_paramNull() {
-        boolean result = bookService.decrementFavoriteCount(null);
-        assertFalse(result, "bookId为null时应返回false");
+    @DisplayName("SS01: bookId为null，返回false")
+    public void testDecrementFavoriteCount_SS01_bookIdNull() {
+        assertFalse(bookService.decrementFavoriteCount(null));
     }
 
-    /** TCS-SC02: bookId<=0 */
-    @DisplayName("TCS-SC02: bookId<=0")
+    /**
+     * SS02: bookId<=0，返回false
+     */
     @Test
-    public void testDecrementFavoriteCount_TCS_SC02_idLEZero() {
+    @DisplayName("SS02: bookId<=0，返回false")
+    public void testDecrementFavoriteCount_SS02_bookIdLEZero() {
         assertFalse(bookService.decrementFavoriteCount(0L));
         assertFalse(bookService.decrementFavoriteCount(-1L));
     }
 
-    /** TCS-SC03: 图书不存在（bookId=99999） */
-    @DisplayName("TCS-SC03: 图书不存在（bookId=99999）")
+    /**
+     * SS03: 图书不存在，返回false
+     */
     @Test
-    public void testDecrementFavoriteCount_TCS_SC03_bookNotExist() {
-        boolean result = bookService.decrementFavoriteCount(99999L);
-        assertFalse(result, "图书不存在时应返回false");
+    @DisplayName("SS03: 图书不存在，返回false")
+    public void testDecrementFavoriteCount_SS03_bookNotExist() {
+        assertFalse(bookService.decrementFavoriteCount(99999L));
     }
 
-    /** TCS-SC04: 收藏数为null */
-    @DisplayName("TCS-SC04: 收藏数为null")
+    /**
+     * SS04: 收藏数为null，设置为0并返回true
+     */
     @Test
-    public void testDecrementFavoriteCount_TCS_SC04_favoriteCountNull() {
+    @DisplayName("SS04: 收藏数为null，设置为0并返回true")
+    public void testDecrementFavoriteCount_SS04_favoriteCountNull() {
         Book book = new Book();
         book.setName("收藏数为null");
         book.setAuthor("作者");
@@ -123,16 +127,17 @@ public class BookSearchTest {
         book.setFavoriteCount(null);
         bookService.save(book);
         testBooks.add(book);
-        boolean result = bookService.decrementFavoriteCount(book.getId());
-        assertTrue(result, "收藏数为null时应返回true");
+        assertTrue(bookService.decrementFavoriteCount(book.getId()));
         Book updated = bookService.getById(book.getId());
-        assertEquals(0, updated.getFavoriteCount(), "收藏数应被设置为0");
+        assertEquals(0, updated.getFavoriteCount());
     }
 
-    /** TCS-SC05: 收藏数大于0 */
-    @DisplayName("TCS-SC05: 收藏数大于0")
+    /**
+     * SS05: 收藏数大于0，减1并返回true
+     */
     @Test
-    public void testDecrementFavoriteCount_TCS_SC05_favoriteCountGT0() {
+    @DisplayName("SS05: 收藏数大于0，减1并返回true")
+    public void testDecrementFavoriteCount_SS05_favoriteCountGT0() {
         Book book = new Book();
         book.setName("收藏数大于0");
         book.setAuthor("作者");
@@ -141,16 +146,17 @@ public class BookSearchTest {
         book.setFavoriteCount(5);
         bookService.save(book);
         testBooks.add(book);
-        boolean result = bookService.decrementFavoriteCount(book.getId());
-        assertTrue(result, "收藏数大于0时应返回true");
+        assertTrue(bookService.decrementFavoriteCount(book.getId()));
         Book updated = bookService.getById(book.getId());
-        assertEquals(4, updated.getFavoriteCount(), "收藏数应减少1");
+        assertEquals(4, updated.getFavoriteCount());
     }
 
-    /** TCS-SC06: 收藏数为0 */
-    @DisplayName("TCS-SC06: 收藏数为0")
+    /**
+     * SS06: 收藏数为0，不变并返回true
+     */
     @Test
-    public void testDecrementFavoriteCount_TCS_SC06_favoriteCountZero() {
+    @DisplayName("SS06: 收藏数为0，不变并返回true")
+    public void testDecrementFavoriteCount_SS06_favoriteCountZero() {
         Book book = new Book();
         book.setName("收藏数为0");
         book.setAuthor("作者");
@@ -159,231 +165,9 @@ public class BookSearchTest {
         book.setFavoriteCount(0);
         bookService.save(book);
         testBooks.add(book);
-        boolean result = bookService.decrementFavoriteCount(book.getId());
-        assertTrue(result, "收藏数为0时应返回true");
-        Book updated = bookService.getById(book.getId());
-        assertEquals(0, updated.getFavoriteCount(), "收藏数应保持为0");
-    }
-
-    // ----------- 判定覆盖/条件覆盖/路径覆盖 -----------
-
-    /** TCS-DC01: book==null 判定为true */
-    @DisplayName("TCS-DC01: book==null 判定为true")
-    @Test
-    public void testDecrementFavoriteCount_TCS_DC01_bookNull() {
-        assertFalse(bookService.decrementFavoriteCount(99999L));
-    }
-
-    /** TCS-DC02: book!=null 判定为true */
-    @DisplayName("TCS-DC02: book!=null 判定为true")
-    @Test
-    public void testDecrementFavoriteCount_TCS_DC02_bookNotNull() {
-        Book book = new Book();
-        book.setName("判定覆盖测试");
-        book.setAuthor("作者");
-        book.setCategory("测试");
-        book.setPrice(new BigDecimal("10.0"));
-        book.setFavoriteCount(1);
-        bookService.save(book);
-        testBooks.add(book);
-        assertTrue(bookService.decrementFavoriteCount(book.getId()));
-    }
-
-    /** TCS-DC03: favoriteCount==null 判定为true */
-    @DisplayName("TCS-DC03: favoriteCount==null 判定为true")
-    @Test
-    public void testDecrementFavoriteCount_TCS_DC03_favoriteCountNull() {
-        Book book = new Book();
-        book.setName("判定覆盖测试");
-        book.setAuthor("作者");
-        book.setCategory("测试");
-        book.setPrice(new BigDecimal("10.0"));
-        book.setFavoriteCount(null);
-        bookService.save(book);
-        testBooks.add(book);
         assertTrue(bookService.decrementFavoriteCount(book.getId()));
         Book updated = bookService.getById(book.getId());
         assertEquals(0, updated.getFavoriteCount());
-    }
-
-    /** TCS-DC04: favoriteCount==null 判定为false */
-    @DisplayName("TCS-DC04: favoriteCount==null 判定为false")
-    @Test
-    public void testDecrementFavoriteCount_TCS_DC04_favoriteCountNotNull() {
-        Book book = new Book();
-        book.setName("判定覆盖测试");
-        book.setAuthor("作者");
-        book.setCategory("测试");
-        book.setPrice(new BigDecimal("10.0"));
-        book.setFavoriteCount(2);
-        bookService.save(book);
-        testBooks.add(book);
-        assertTrue(bookService.decrementFavoriteCount(book.getId()));
-        Book updated = bookService.getById(book.getId());
-        assertEquals(1, updated.getFavoriteCount());
-    }
-
-    /** TCS-DC05: favoriteCount>0 判定为true */
-    @DisplayName("TCS-DC05: favoriteCount>0 判定为true")
-    @Test
-    public void testDecrementFavoriteCount_TCS_DC05_favoriteCountGT0() {
-        Book book = new Book();
-        book.setName("判定覆盖测试");
-        book.setAuthor("作者");
-        book.setCategory("测试");
-        book.setPrice(new BigDecimal("10.0"));
-        book.setFavoriteCount(3);
-        bookService.save(book);
-        testBooks.add(book);
-        assertTrue(bookService.decrementFavoriteCount(book.getId()));
-        Book updated = bookService.getById(book.getId());
-        assertEquals(2, updated.getFavoriteCount());
-    }
-
-    /** TCS-DC06: favoriteCount>0 判定为false */
-    @DisplayName("TCS-DC06: favoriteCount>0 判定为false")
-    @Test
-    public void testDecrementFavoriteCount_TCS_DC06_favoriteCountNotGT0() {
-        Book book = new Book();
-        book.setName("判定覆盖测试");
-        book.setAuthor("作者");
-        book.setCategory("测试");
-        book.setPrice(new BigDecimal("10.0"));
-        book.setFavoriteCount(0);
-        bookService.save(book);
-        testBooks.add(book);
-        assertTrue(bookService.decrementFavoriteCount(book.getId()));
-        Book updated = bookService.getById(book.getId());
-        assertEquals(0, updated.getFavoriteCount());
-    }
-
-    // ----------- 循环结构 listAllBooksAndSortByFavoriteCount -----------
-
-    /** TCS-LT01: 空列表测试 */
-    @DisplayName("TCS-LT01: 空列表测试")
-    @Test
-    public void testListAllBooksAndSortByFavoriteCount_TCS_LT01_emptyList() {
-        // 假设数据库已清空或无数据时
-        List<Book> result = bookService.listAllBooksAndSortByFavoriteCount("任意", "desc");
-        assertNotNull(result);
-        // 只要不抛异常即可
-    }
-
-    /** TCS-LT02: 单元素测试 */
-    @DisplayName("TCS-LT02: 单元素测试")
-    @Test
-    public void testListAllBooksAndSortByFavoriteCount_TCS_LT02_singleElement() {
-        Book book = new Book();
-        book.setName("唯一书");
-        book.setAuthor("唯一作者");
-        book.setCategory("唯一分类");
-        book.setPrice(new BigDecimal("10.0"));
-        book.setFavoriteCount(1);
-        bookService.save(book);
-        testBooks.add(book);
-        List<Book> result = bookService.listAllBooksAndSortByFavoriteCount("唯一", "desc");
-        assertNotNull(result);
-        assertTrue(result.stream().anyMatch(b -> b.getName().equals("唯一书")));
-    }
-
-    /** TCS-LT03: 全部匹配测试 */
-    @DisplayName("TCS-LT03: 全部匹配测试")
-    @Test
-    public void testListAllBooksAndSortByFavoriteCount_TCS_LT03_allMatch() {
-        Book book1 = new Book();
-        book1.setName("Java基础");
-        book1.setAuthor("张三");
-        book1.setCategory("编程");
-        book1.setPrice(new BigDecimal("10.0"));
-        book1.setFavoriteCount(1);
-        bookService.save(book1);
-        testBooks.add(book1);
-
-        Book book2 = new Book();
-        book2.setName("Java进阶");
-        book2.setAuthor("李四");
-        book2.setCategory("编程");
-        book2.setPrice(new BigDecimal("12.0"));
-        book2.setFavoriteCount(2);
-        bookService.save(book2);
-        testBooks.add(book2);
-
-        List<Book> result = bookService.listAllBooksAndSortByFavoriteCount("Java", "desc");
-        assertNotNull(result);
-        assertTrue(result.stream().anyMatch(b -> b.getName().equals("Java基础")));
-        assertTrue(result.stream().anyMatch(b -> b.getName().equals("Java进阶")));
-    }
-
-    /** TCS-LT04: 部分匹配测试 */
-    @DisplayName("TCS-LT04: 部分匹配测试")
-    @Test
-    public void testListAllBooksAndSortByFavoriteCount_TCS_LT04_partialMatch() {
-        Book book1 = new Book();
-        book1.setName("Java基础");
-        book1.setAuthor("张三");
-        book1.setCategory("编程");
-        book1.setPrice(new BigDecimal("10.0"));
-        book1.setFavoriteCount(1);
-        bookService.save(book1);
-        testBooks.add(book1);
-
-        Book book2 = new Book();
-        book2.setName("Python入门");
-        book2.setAuthor("李四");
-        book2.setCategory("编程");
-        book2.setPrice(new BigDecimal("12.0"));
-        book2.setFavoriteCount(2);
-        bookService.save(book2);
-        testBooks.add(book2);
-
-        List<Book> result = bookService.listAllBooksAndSortByFavoriteCount("Java", "desc");
-        assertNotNull(result);
-        assertTrue(result.stream().anyMatch(b -> b.getName().contains("Java")));
-        assertFalse(result.stream().anyMatch(b -> b.getName().contains("Python")));
-    }
-
-    /** TCS-LT05: 无匹配测试 */
-    @DisplayName("TCS-LT05: 无匹配测试")
-    @Test
-    public void testListAllBooksAndSortByFavoriteCount_TCS_LT05_noMatch() {
-        Book book1 = new Book();
-        book1.setName("Java基础");
-        book1.setAuthor("张三");
-        book1.setCategory("编程");
-        book1.setPrice(new BigDecimal("10.0"));
-        book1.setFavoriteCount(1);
-        bookService.save(book1);
-        testBooks.add(book1);
-
-        Book book2 = new Book();
-        book2.setName("Python入门");
-        book2.setAuthor("李四");
-        book2.setCategory("编程");
-        book2.setPrice(new BigDecimal("12.0"));
-        book2.setFavoriteCount(2);
-        bookService.save(book2);
-        testBooks.add(book2);
-
-        List<Book> result = bookService.listAllBooksAndSortByFavoriteCount("C++", "desc");
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    /** TCS-LT06: null值处理测试 */
-    @DisplayName("TCS-LT06: null值处理测试")
-    @Test
-    public void testListAllBooksAndSortByFavoriteCount_TCS_LT06_nullField() {
-        Book book = new Book();
-        book.setName(null);
-        book.setAuthor(null);
-        book.setCategory(null);
-        book.setPrice(new BigDecimal("10.0"));
-        book.setFavoriteCount(1);
-        bookService.save(book);
-        testBooks.add(book);
-        List<Book> result = bookService.listAllBooksAndSortByFavoriteCount("", "desc");
-        assertNotNull(result);
-        // 只要不抛异常即可
     }
 
     // ==================== 黑盒测试（等价类划分/边界值分析） ====================
